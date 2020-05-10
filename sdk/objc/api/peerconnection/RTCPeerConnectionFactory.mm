@@ -14,18 +14,19 @@
 #import "RTCPeerConnectionFactory+Private.h"
 #import "RTCPeerConnectionFactoryOptions+Private.h"
 
+#import "RTCMediaConstraints+Private.h"
+#import "RTCPeerConnection+Private.h"
+#import "base/RTCLogging.h"
+#import "helpers/NSString+StdString.h"
+
+#ifndef HAVE_NO_MEDIA
 #import "RTCAudioSource+Private.h"
 #import "RTCAudioTrack+Private.h"
-#import "RTCMediaConstraints+Private.h"
 #import "RTCMediaStream+Private.h"
-#import "RTCPeerConnection+Private.h"
 #import "RTCVideoSource+Private.h"
 #import "RTCVideoTrack+Private.h"
-#import "base/RTCLogging.h"
 #import "base/RTCVideoDecoderFactory.h"
 #import "base/RTCVideoEncoderFactory.h"
-#import "helpers/NSString+StdString.h"
-#ifndef HAVE_NO_MEDIA
 #import "components/video_codec/RTCVideoDecoderFactoryH264.h"
 #import "components/video_codec/RTCVideoEncoderFactoryH264.h"
 // The no-media version PeerConnectionFactory doesn't depend on these files, but the gn check tool
@@ -64,6 +65,7 @@
 
 @synthesize nativeFactory = _nativeFactory;
 
+#ifndef HAVE_NO_MEDIA
 - (rtc::scoped_refptr<webrtc::AudioDeviceModule>)audioDeviceModule {
 #if defined(WEBRTC_IOS)
   return webrtc::CreateAudioDeviceModule();
@@ -71,6 +73,7 @@
   return nullptr;
 #endif
 }
+#endif
 
 - (instancetype)init {
 #ifdef HAVE_NO_MEDIA
@@ -88,6 +91,7 @@
 #endif
 }
 
+#ifndef HAVE_NO_MEDIA
 - (instancetype)initWithEncoderFactory:(nullable id<RTCVideoEncoderFactory>)encoderFactory
                         decoderFactory:(nullable id<RTCVideoDecoderFactory>)decoderFactory
                  mediaTransportFactory:
@@ -118,6 +122,7 @@
                        decoderFactory:decoderFactory
                 mediaTransportFactory:nullptr];
 }
+#endif
 
 - (instancetype)initNative {
   if (self = [super init]) {
@@ -151,6 +156,7 @@
   return self;
 }
 
+#ifndef HAVE_NO_MEDIA
 - (instancetype)initWithNativeAudioEncoderFactory:
                     (rtc::scoped_refptr<webrtc::AudioEncoderFactory>)audioEncoderFactory
                         nativeAudioDecoderFactory:
@@ -283,6 +289,7 @@
   return [[RTCMediaStream alloc] initWithFactory:self
                                         streamId:streamId];
 }
+#endif
 
 - (RTCPeerConnection *)peerConnectionWithConfiguration:
     (RTCConfiguration *)configuration

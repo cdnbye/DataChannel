@@ -11,6 +11,7 @@
 #import "RTCPeerConnectionFactory+Native.h"
 #import "RTCPeerConnectionFactoryBuilder+DefaultComponents.h"
 
+#ifndef HAVE_NO_MEDIA
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #import "components/video_codec/RTCVideoDecoderFactoryH264.h"
@@ -21,11 +22,13 @@
 #if defined(WEBRTC_IOS)
 #import "sdk/objc/native/api/audio_device_module.h"
 #endif
+#endif
 
 @implementation RTCPeerConnectionFactoryBuilder (DefaultComponents)
 
 + (RTCPeerConnectionFactoryBuilder *)defaultBuilder {
   RTCPeerConnectionFactoryBuilder *builder = [[RTCPeerConnectionFactoryBuilder alloc] init];
+#ifndef HAVE_NO_MEDIA
   auto audioEncoderFactory = webrtc::CreateBuiltinAudioEncoderFactory();
   [builder setAudioEncoderFactory:audioEncoderFactory];
 
@@ -42,6 +45,7 @@
 
 #if defined(WEBRTC_IOS)
   [builder setAudioDeviceModule:webrtc::CreateAudioDeviceModule()];
+#endif
 #endif
   return builder;
 }

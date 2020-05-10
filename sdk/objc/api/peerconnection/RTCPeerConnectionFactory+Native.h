@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* Initializer used when WebRTC is compiled with no media support */
 - (instancetype)initWithNoMedia;
 
+#ifndef HAVE_NO_MEDIA
 /* Initialize object with injectable native audio/video encoder/decoder factories */
 - (instancetype)initWithNativeAudioEncoderFactory:
                     (rtc::scoped_refptr<webrtc::AudioEncoderFactory>)audioEncoderFactory
@@ -87,6 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
                         decoderFactory:(nullable id<RTCVideoDecoderFactory>)decoderFactory
                  mediaTransportFactory:
                      (std::unique_ptr<webrtc::MediaTransportFactory>)mediaTransportFactory;
+#endif
 @end
 
 NS_ASSUME_NONNULL_END
