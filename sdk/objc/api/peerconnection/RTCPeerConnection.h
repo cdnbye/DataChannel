@@ -17,13 +17,15 @@
 @class RTCDataChannelConfiguration;
 @class RTCIceCandidate;
 @class RTCMediaConstraints;
+#ifndef HAVE_NO_MEDIA
 @class RTCMediaStream;
 @class RTCMediaStreamTrack;
-@class RTCPeerConnectionFactory;
 @class RTCRtpReceiver;
 @class RTCRtpSender;
 @class RTCRtpTransceiver;
 @class RTCRtpTransceiverInit;
+#endif
+@class RTCPeerConnectionFactory;
 @class RTCSessionDescription;
 @class RTCStatisticsReport;
 @class RTCLegacyStatsReport;
@@ -90,6 +92,7 @@ RTC_OBJC_EXPORT
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     didChangeSignalingState:(RTCSignalingState)stateChanged;
 
+#ifndef HAVE_NO_MEDIA
 /** Called when media is received on a new stream from remote peer. */
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream;
 
@@ -97,6 +100,7 @@ RTC_OBJC_EXPORT
  *  This is not called when RTCSdpSemanticsUnifiedPlan is specified.
  */
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream;
+#endif
 
 /** Called when negotiation is needed, for example ICE has restarted. */
 - (void)peerConnectionShouldNegotiate:(RTCPeerConnection *)peerConnection;
@@ -135,6 +139,7 @@ RTC_OBJC_EXPORT
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     didChangeConnectionState:(RTCPeerConnectionState)newState;
 
+#ifndef HAVE_NO_MEDIA
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     didStartReceivingOnTransceiver:(RTCRtpTransceiver *)transceiver;
 
@@ -146,6 +151,7 @@ RTC_OBJC_EXPORT
 /** Called when the receiver and its track are removed. */
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
      didRemoveReceiver:(RTCRtpReceiver *)rtpReceiver;
+#endif
 
 /** Called when the selected ICE candidate pair is changed. */
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
@@ -166,7 +172,6 @@ RTC_OBJC_EXPORT
 /** This property is not available with RTCSdpSemanticsUnifiedPlan. Please use
  *  |senders| instead.
  */
-@property(nonatomic, readonly) NSArray<RTCMediaStream *> *localStreams;
 @property(nonatomic, readonly, nullable) RTCSessionDescription *localDescription;
 @property(nonatomic, readonly, nullable) RTCSessionDescription *remoteDescription;
 @property(nonatomic, readonly) RTCSignalingState signalingState;
@@ -175,6 +180,8 @@ RTC_OBJC_EXPORT
 @property(nonatomic, readonly) RTCIceGatheringState iceGatheringState;
 @property(nonatomic, readonly, copy) RTCConfiguration *configuration;
 
+#ifndef HAVE_NO_MEDIA
+@property(nonatomic, readonly) NSArray<RTCMediaStream *> *localStreams;
 /** Gets all RTCRtpSenders associated with this peer connection.
  *  Note: reading this property returns different instances of RTCRtpSender.
  *  Use isEqual: instead of == to compare RTCRtpSender instances.
@@ -194,6 +201,7 @@ RTC_OBJC_EXPORT
  *  This is only available with RTCSdpSemanticsUnifiedPlan specified.
  */
 @property(nonatomic, readonly) NSArray<RTCRtpTransceiver *> *transceivers;
+#endif
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -214,6 +222,7 @@ RTC_OBJC_EXPORT
 /** Remove a group of remote candidates from the ICE Agent. */
 - (void)removeIceCandidates:(NSArray<RTCIceCandidate *> *)candidates;
 
+#ifndef HAVE_NO_MEDIA
 /** Add a new media stream to be sent on this peer connection.
  *  This method is not supported with RTCSdpSemanticsUnifiedPlan. Please use
  *  addTrack instead.
@@ -276,6 +285,7 @@ RTC_OBJC_EXPORT
 - (RTCRtpTransceiver *)addTransceiverOfType:(RTCRtpMediaType)mediaType;
 - (RTCRtpTransceiver *)addTransceiverOfType:(RTCRtpMediaType)mediaType
                                        init:(RTCRtpTransceiverInit *)init;
+#endif
 
 /** Generate an SDP offer. */
 - (void)offerForConstraints:(RTCMediaConstraints *)constraints
@@ -310,6 +320,7 @@ RTC_OBJC_EXPORT
 
 @end
 
+#ifndef HAVE_NO_MEDIA
 @interface RTCPeerConnection (Media)
 
 /** Create an RTCRtpSender with the specified kind and media stream ID.
@@ -320,6 +331,7 @@ RTC_OBJC_EXPORT
 - (RTCRtpSender *)senderWithKind:(NSString *)kind streamId:(NSString *)streamId;
 
 @end
+#endif
 
 @interface RTCPeerConnection (DataChannel)
 
@@ -331,6 +343,7 @@ RTC_OBJC_EXPORT
 
 typedef void (^RTCStatisticsCompletionHandler)(RTCStatisticsReport *);
 
+#ifndef HAVE_NO_MEDIA
 @interface RTCPeerConnection (Stats)
 
 /** Gather stats for the given RTCMediaStreamTrack. If |mediaStreamTrack| is nil
@@ -356,5 +369,6 @@ typedef void (^RTCStatisticsCompletionHandler)(RTCStatisticsReport *);
             completionHandler:(RTCStatisticsCompletionHandler)completionHandler;
 
 @end
+#endif
 
 NS_ASSUME_NONNULL_END

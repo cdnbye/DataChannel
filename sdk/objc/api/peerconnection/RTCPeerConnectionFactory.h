@@ -14,18 +14,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#ifndef HAVE_NO_MEDIA
 @class RTCAudioSource;
 @class RTCAudioTrack;
-@class RTCConfiguration;
-@class RTCMediaConstraints;
 @class RTCMediaStream;
-@class RTCPeerConnection;
 @class RTCVideoSource;
 @class RTCVideoTrack;
-@class RTCPeerConnectionFactoryOptions;
-@protocol RTCPeerConnectionDelegate;
 @protocol RTCVideoDecoderFactory;
 @protocol RTCVideoEncoderFactory;
+#endif
+
+@class RTCConfiguration;
+@class RTCMediaConstraints;
+@class RTCPeerConnection;
+@class RTCPeerConnectionFactoryOptions;
+@protocol RTCPeerConnectionDelegate;
 
 RTC_OBJC_EXPORT
 @interface RTCPeerConnectionFactory : NSObject
@@ -33,6 +36,7 @@ RTC_OBJC_EXPORT
 /* Initialize object with default H264 video encoder/decoder factories */
 - (instancetype)init;
 
+#ifndef HAVE_NO_MEDIA
 /* Initialize object with injectable video encoder/decoder factories */
 - (instancetype)initWithEncoderFactory:(nullable id<RTCVideoEncoderFactory>)encoderFactory
                         decoderFactory:(nullable id<RTCVideoDecoderFactory>)decoderFactory;
@@ -58,6 +62,7 @@ RTC_OBJC_EXPORT
 
 /** Initialize an RTCMediaStream with an id. */
 - (RTCMediaStream *)mediaStreamWithStreamId:(NSString *)streamId;
+#endif
 
 /** Initialize an RTCPeerConnection with a configuration, constraints, and
  *  delegate.

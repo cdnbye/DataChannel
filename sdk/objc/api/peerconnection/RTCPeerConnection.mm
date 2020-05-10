@@ -15,12 +15,14 @@
 #import "RTCIceCandidate+Private.h"
 #import "RTCLegacyStatsReport+Private.h"
 #import "RTCMediaConstraints+Private.h"
+#ifndef HAVE_NO_MEDIA
 #import "RTCMediaStream+Private.h"
 #import "RTCMediaStreamTrack+Private.h"
-#import "RTCPeerConnectionFactory+Private.h"
 #import "RTCRtpReceiver+Private.h"
 #import "RTCRtpSender+Private.h"
 #import "RTCRtpTransceiver+Private.h"
+#endif
+#import "RTCPeerConnectionFactory+Private.h"
 #import "RTCSessionDescription+Private.h"
 #import "base/RTCLogging.h"
 #import "helpers/NSString+StdString.h"
@@ -130,25 +132,30 @@ void PeerConnectionDelegateAdapter::OnSignalingChange(
 
 void PeerConnectionDelegateAdapter::OnAddStream(
     rtc::scoped_refptr<MediaStreamInterface> stream) {
+#ifndef HAVE_NO_MEDIA
   RTCPeerConnection *peer_connection = peer_connection_;
   RTCMediaStream *mediaStream =
       [[RTCMediaStream alloc] initWithFactory:peer_connection.factory nativeMediaStream:stream];
   [peer_connection.delegate peerConnection:peer_connection
                               didAddStream:mediaStream];
+#endif
 }
 
 void PeerConnectionDelegateAdapter::OnRemoveStream(
     rtc::scoped_refptr<MediaStreamInterface> stream) {
+#ifndef HAVE_NO_MEDIA
   RTCPeerConnection *peer_connection = peer_connection_;
   RTCMediaStream *mediaStream =
       [[RTCMediaStream alloc] initWithFactory:peer_connection.factory nativeMediaStream:stream];
 
   [peer_connection.delegate peerConnection:peer_connection
                            didRemoveStream:mediaStream];
+#endif
 }
 
 void PeerConnectionDelegateAdapter::OnTrack(
     rtc::scoped_refptr<RtpTransceiverInterface> nativeTransceiver) {
+#ifndef HAVE_NO_MEDIA
   RTCPeerConnection *peer_connection = peer_connection_;
   RTCRtpTransceiver *transceiver =
       [[RTCRtpTransceiver alloc] initWithFactory:peer_connection.factory
@@ -158,6 +165,7 @@ void PeerConnectionDelegateAdapter::OnTrack(
     [peer_connection.delegate peerConnection:peer_connection
               didStartReceivingOnTransceiver:transceiver];
   }
+#endif
 }
 
 void PeerConnectionDelegateAdapter::OnDataChannel(
@@ -260,6 +268,7 @@ void PeerConnectionDelegateAdapter::OnIceSelectedCandidatePairChanged(
 void PeerConnectionDelegateAdapter::OnAddTrack(
     rtc::scoped_refptr<RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<MediaStreamInterface>> &streams) {
+#ifndef HAVE_NO_MEDIA
   RTCPeerConnection *peer_connection = peer_connection_;
   if ([peer_connection.delegate respondsToSelector:@selector(peerConnection:
                                                              didAddReceiver:streams:)]) {
@@ -276,23 +285,28 @@ void PeerConnectionDelegateAdapter::OnAddTrack(
                               didAddReceiver:rtpReceiver
                                      streams:mediaStreams];
   }
+#endif
 }
 
 void PeerConnectionDelegateAdapter::OnRemoveTrack(
     rtc::scoped_refptr<RtpReceiverInterface> receiver) {
+#ifndef HAVE_NO_MEDIA
   RTCPeerConnection *peer_connection = peer_connection_;
   if ([peer_connection.delegate respondsToSelector:@selector(peerConnection:didRemoveReceiver:)]) {
     RTCRtpReceiver *rtpReceiver = [[RTCRtpReceiver alloc] initWithFactory:peer_connection.factory
                                                         nativeRtpReceiver:receiver];
     [peer_connection.delegate peerConnection:peer_connection didRemoveReceiver:rtpReceiver];
   }
+#endif
 }
 
 }  // namespace webrtc
 
 @implementation RTCPeerConnection {
   RTCPeerConnectionFactory *_factory;
+#ifndef HAVE_NO_MEDIA
   NSMutableArray<RTCMediaStream *> *_localStreams;
+#endif
   std::unique_ptr<webrtc::PeerConnectionDelegateAdapter> _observer;
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> _peerConnection;
   std::unique_ptr<webrtc::MediaConstraints> _nativeConstraints;
@@ -326,15 +340,19 @@ void PeerConnectionDelegateAdapter::OnRemoveTrack(
       return nil;
     }
     _factory = factory;
+#ifndef HAVE_NO_MEDIA
     _localStreams = [[NSMutableArray alloc] init];
+#endif
     _delegate = delegate;
   }
   return self;
 }
 
+#ifndef HAVE_NO_MEDIA
 - (NSArray<RTCMediaStream *> *)localStreams {
   return [_localStreams copy];
 }
+#endif
 
 - (RTCSessionDescription *)localDescription {
   const webrtc::SessionDescriptionInterface *description =
@@ -414,6 +432,7 @@ void PeerConnectionDelegateAdapter::OnRemoveTrack(
   }
 }
 
+#ifndef HAVE_NO_MEDIA
 - (void)addStream:(RTCMediaStream *)stream {
   if (!_peerConnection->AddStream(stream.nativeMediaStream)) {
     RTCLogError(@"Failed to add stream: %@", stream);
@@ -485,6 +504,7 @@ void PeerConnectionDelegateAdapter::OnRemoveTrack(
   return [[RTCRtpTransceiver alloc] initWithFactory:self.factory
                                nativeRtpTransceiver:nativeTransceiverOrError.MoveValue()];
 }
+#endif
 
 - (void)offerForConstraints:(RTCMediaConstraints *)constraints
           completionHandler:
@@ -572,6 +592,7 @@ void PeerConnectionDelegateAdapter::OnRemoveTrack(
   _hasStartedRtcEventLog = NO;
 }
 
+#ifndef HAVE_NO_MEDIA
 - (RTCRtpSender *)senderWithKind:(NSString *)kind
                         streamId:(NSString *)streamId {
   std::string nativeKind = [NSString stdStringForString:kind];
@@ -618,6 +639,7 @@ void PeerConnectionDelegateAdapter::OnRemoveTrack(
   }
   return transceivers;
 }
+#endif
 
 #pragma mark - Private
 

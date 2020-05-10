@@ -192,6 +192,7 @@ config("common_inherited_config") {
   if (is_chromeos) {
     defines += [ "CHROMEOS" ]
   }
+  defines += [ "HAVE_NO_MEDIA" ]
 
   if (rtc_sanitize_coverage != "") {
     assert(is_clang, "sanitizer coverage requires clang")
