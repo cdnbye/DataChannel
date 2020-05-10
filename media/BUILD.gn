@@ -91,7 +91,6 @@ rtc_static_library("rtc_media_base") {
     "../api/video:video_rtp_headers",
     "../api/video_codecs:video_codecs_api",
     "../call:call_interfaces",
-    "../common_video",
     "../modules/audio_processing:audio_processing_statistics",
     "../modules/rtp_rtcp:rtp_rtcp_format",
     "../p2p:stun_types",

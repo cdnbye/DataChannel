@@ -29,7 +29,6 @@ rtc_source_set("call_interfaces") {
   }
   deps = [
     ":rtp_interfaces",
-    ":video_stream_api",
     "../api:fec_controller_api",
     "../api:network_state_predictor_api",
     "../api:rtc_error",
@@ -47,9 +46,6 @@ rtc_source_set("call_interfaces") {
     "../api/transport:network_control",
     "../api/transport/media:media_transport_interface",
     "../api/transport/rtp:rtp_source",
-    "../modules/audio_device",
-    "../modules/audio_processing",
-    "../modules/audio_processing:api",
     "../modules/audio_processing:audio_processing_statistics",
     "../modules/rtp_rtcp:rtp_rtcp_format",
     "../modules/utility",
@@ -112,7 +108,6 @@ rtc_source_set("rtp_receiver") {
     ":rtp_interfaces",
     "../api:array_view",
     "../api:rtp_headers",
-    "../modules/rtp_rtcp",
     "../modules/rtp_rtcp:rtp_rtcp_format",
     "../rtc_base:checks",
     "../rtc_base:rtc_base_approved",

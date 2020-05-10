@@ -1269,6 +1269,7 @@ bool PeerConnection::Initialize(
   signaling_thread()->PostDelayed(RTC_FROM_HERE, delay_ms, this,
                                   MSG_REPORT_USAGE_PATTERN, nullptr);
 
+#ifndef HAVE_NO_MEDIA
   if (dependencies.video_bitrate_allocator_factory) {
     video_bitrate_allocator_factory_ =
         std::move(dependencies.video_bitrate_allocator_factory);
@@ -1276,6 +1277,7 @@ bool PeerConnection::Initialize(
     video_bitrate_allocator_factory_ =
         CreateBuiltinVideoBitrateAllocatorFactory();
   }
+#endif
   return true;
 }
 
