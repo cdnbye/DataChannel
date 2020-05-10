@@ -141,12 +141,16 @@ class DatagramRtpTransport : public RtpTransportInternal,
   cricket::IceTransportInternal* ice_transport_;
   webrtc::DatagramTransportInterface* datagram_transport_;
 
+#ifndef HAVE_NO_MEDIA
   RtpDemuxer rtp_demuxer_;
+#endif
 
   MediaTransportState state_ = MediaTransportState::kPending;
 
+#ifndef HAVE_NO_MEDIA
   // Extension map for parsing transport sequence numbers.
   webrtc::RtpHeaderExtensionMap rtp_header_extension_map_;
+#endif
 
   // Keeps information about sent RTP packet until they are Acked or Lost.
   std::map<webrtc::DatagramId, SentPacketInfo> sent_rtp_packet_map_;
@@ -156,10 +160,12 @@ class DatagramRtpTransport : public RtpTransportInternal,
   // get it back in notifications about Sent, Acked and Lost datagrams.
   int64_t current_datagram_id_ = 0;
 
+#ifndef HAVE_NO_MEDIA
   // TODO(sukhanov): Previous nonzero timestamp is required for workaround for
   // zero timestamps received, which sometimes are received from datagram
   // transport. Investigate if we can eliminate zero timestamps.
   int64_t previous_nonzero_timestamp_us_ = 0;
+#endif
 
   // Disable datagram to RTCP feedback translation and enable RTCP feedback
   // loop (note that having both RTCP and datagram feedback loops is

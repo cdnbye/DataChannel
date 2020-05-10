@@ -142,7 +142,9 @@ BaseChannel::BaseChannel(rtc::Thread* worker_thread,
       ssrc_generator_(ssrc_generator) {
   RTC_DCHECK_RUN_ON(worker_thread_);
   RTC_DCHECK(ssrc_generator_);
+#ifndef HAVE_NO_MEDIA
   demuxer_criteria_.mid = content_name;
+#endif
   RTC_LOG(LS_INFO) << "Created channel for " << content_name;
 }
 
@@ -511,10 +513,14 @@ void BaseChannel::UpdateRtpHeaderExtensionMap(
 }
 
 bool BaseChannel::RegisterRtpDemuxerSink() {
+#ifdef HAVE_NO_MEDIA
+  return true;
+#else
   RTC_DCHECK(rtp_transport_);
   return network_thread_->Invoke<bool>(RTC_FROM_HERE, [this] {
     return rtp_transport_->RegisterRtpDemuxerSink(demuxer_criteria_, this);
   });
+#endif
 }
 
 void BaseChannel::EnableMedia_w() {
@@ -687,7 +693,9 @@ bool BaseChannel::UpdateRemoteStreams_w(
       }
     }
   }
+#ifndef HAVE_NO_MEDIA
   demuxer_criteria_.ssrcs.clear();
+#endif
   // Check for new streams.
   for (const StreamParams& new_stream : streams) {
     // We allow a StreamParams with an empty list of SSRCs, in which case the
@@ -710,9 +718,11 @@ bool BaseChannel::UpdateRemoteStreams_w(
         ret = false;
       }
     }
+#ifndef HAVE_NO_MEDIA
     // Update the receiving SSRCs.
     demuxer_criteria_.ssrcs.insert(new_stream.ssrcs.begin(),
                                    new_stream.ssrcs.end());
+#endif
   }
   // Re-register the sink to update the receiving ssrcs.
   RegisterRtpDemuxerSink();
@@ -756,11 +766,15 @@ void BaseChannel::OnMessage(rtc::Message* pmsg) {
 }
 
 void BaseChannel::AddHandledPayloadType(int payload_type) {
+#ifndef HAVE_NO_MEDIA
   demuxer_criteria_.payload_types.insert(static_cast<uint8_t>(payload_type));
+#endif
 }
 
 void BaseChannel::ClearHandledPayloadTypes() {
+#ifndef HAVE_NO_MEDIA
   demuxer_criteria_.payload_types.clear();
+#endif
 }
 
 void BaseChannel::FlushRtcpMessages_n() {

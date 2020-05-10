@@ -159,29 +159,36 @@ bool RtpTransport::SendPacket(bool rtcp,
 
 void RtpTransport::UpdateRtpHeaderExtensionMap(
     const cricket::RtpHeaderExtensions& header_extensions) {
+#ifndef HAVE_NO_MEDIA
   header_extension_map_ = RtpHeaderExtensionMap(header_extensions);
+#endif
 }
 
 bool RtpTransport::RegisterRtpDemuxerSink(const RtpDemuxerCriteria& criteria,
                                           RtpPacketSinkInterface* sink) {
+#ifndef HAVE_NO_MEDIA
   rtp_demuxer_.RemoveSink(sink);
   if (!rtp_demuxer_.AddSink(criteria, sink)) {
     RTC_LOG(LS_ERROR) << "Failed to register the sink for RTP demuxer.";
     return false;
   }
+#endif
   return true;
 }
 
 bool RtpTransport::UnregisterRtpDemuxerSink(RtpPacketSinkInterface* sink) {
+#ifndef HAVE_NO_MEDIA
   if (!rtp_demuxer_.RemoveSink(sink)) {
     RTC_LOG(LS_ERROR) << "Failed to unregister the sink for RTP demuxer.";
     return false;
   }
+#endif
   return true;
 }
 
 void RtpTransport::DemuxPacket(rtc::CopyOnWriteBuffer packet,
                                int64_t packet_time_us) {
+#ifndef HAVE_NO_MEDIA
   webrtc::RtpPacketReceived parsed_packet(&header_extension_map_);
   if (!parsed_packet.Parse(std::move(packet))) {
     RTC_LOG(LS_ERROR)
@@ -196,6 +203,7 @@ void RtpTransport::DemuxPacket(rtc::CopyOnWriteBuffer packet,
     RTC_LOG(LS_WARNING) << "Failed to demux RTP packet: "
                         << RtpDemuxer::DescribePacket(parsed_packet);
   }
+#endif
 }
 
 bool RtpTransport::IsTransportWritable() {

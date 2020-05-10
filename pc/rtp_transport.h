@@ -122,10 +122,12 @@ class RtpTransport : public RtpTransportInternal {
   bool rtp_ready_to_send_ = false;
   bool rtcp_ready_to_send_ = false;
 
+#ifndef HAVE_NO_MEDIA
   RtpDemuxer rtp_demuxer_;
 
   // Used for identifying the MID for RtpDemuxer.
   RtpHeaderExtensionMap header_extension_map_;
+#endif
 };
 
 }  // namespace webrtc
