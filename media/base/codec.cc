@@ -22,6 +22,7 @@
 namespace cricket {
 namespace {
 
+#ifndef HAVE_NO_MEDIA
 std::string GetH264PacketizationModeOrDefault(const CodecParameterMap& params) {
   auto it = params.find(kH264FmtpPacketizationMode);
   if (it != params.end()) {
@@ -37,6 +38,7 @@ bool IsSameH264PacketizationMode(const CodecParameterMap& left,
   return GetH264PacketizationModeOrDefault(left) ==
          GetH264PacketizationModeOrDefault(right);
 }
+#endif
 
 // Some (video) codecs are actually families of codecs and rely on parameters
 // to distinguish different incompatible family members.
@@ -44,6 +46,7 @@ bool IsSameCodecSpecific(const std::string& name1,
                          const CodecParameterMap& params1,
                          const std::string& name2,
                          const CodecParameterMap& params2) {
+#ifndef HAVE_NO_MEDIA
   // The names might not necessarily match, so check both.
   auto either_name_matches = [&](const std::string name) {
     return absl::EqualsIgnoreCase(name, name1) ||
@@ -54,6 +57,7 @@ bool IsSameCodecSpecific(const std::string& name1,
            IsSameH264PacketizationMode(params1, params2);
   if (either_name_matches(kVp9CodecName))
     return webrtc::IsSameVP9Profile(params1, params2);
+#endif
   return true;
 }
 

@@ -51,10 +51,12 @@ const char kDisableDatagramToRtcpFeebackTranslationFieldTrial[] =
 
 }  // namespace
 
+#ifndef HAVE_NO_MEDIA
 // Maximum packet size of RTCP feedback packet for allocation. We re-create RTCP
 // feedback packets when we get ACK notifications from datagram transport. Our
 // rtcp feedback packets contain only 1 ACK, so they are much smaller than 1250.
 constexpr size_t kMaxRtcpFeedbackPacketSize = 1250;
+#endif
 
 DatagramRtpTransport::DatagramRtpTransport(
     const std::vector<RtpExtension>& rtp_header_extensions,
@@ -64,6 +66,7 @@ DatagramRtpTransport::DatagramRtpTransport(
       datagram_transport_(datagram_transport),
       disable_datagram_to_rtcp_feeback_translation_(field_trial::IsEnabled(
           kDisableDatagramToRtcpFeebackTranslationFieldTrial)) {
+#ifndef HAVE_NO_MEDIA
   // Save extension map for parsing RTP packets (we only need transport
   // sequence numbers).
   const RtpExtension* transport_sequence_number_extension =
@@ -77,6 +80,7 @@ DatagramRtpTransport::DatagramRtpTransport(
     RTC_LOG(LS_ERROR) << "Transport sequence numbers are not supported in "
                          "datagram transport connection";
   }
+#endif
 
   // TODO(sukhanov): Add CHECK to make sure that field trial
   // WebRTC-ExcludeTransportSequenceNumberFromFecFieldTrial is enabled.
@@ -102,6 +106,9 @@ DatagramRtpTransport::~DatagramRtpTransport() {
 bool DatagramRtpTransport::SendRtpPacket(rtc::CopyOnWriteBuffer* packet,
                                          const rtc::PacketOptions& options,
                                          int flags) {
+#ifdef HAVE_NO_MEDIA
+  return true;
+#else
   RTC_DCHECK_RUN_ON(&thread_checker_);
 
   // Assign and increment datagram_id.
@@ -164,6 +171,7 @@ bool DatagramRtpTransport::SendRtpPacket(rtc::CopyOnWriteBuffer* packet,
   return SendDatagram(
       rtc::ArrayView<const uint8_t>(rtp_packet.data(), rtp_packet.size()),
       datagram_id);
+#endif
 }
 
 bool DatagramRtpTransport::SendRtcpPacket(rtc::CopyOnWriteBuffer* packet,
@@ -188,6 +196,7 @@ bool DatagramRtpTransport::SendDatagram(rtc::ArrayView<const uint8_t> data,
 
 void DatagramRtpTransport::OnDatagramReceived(
     rtc::ArrayView<const uint8_t> data) {
+#ifndef HAVE_NO_MEDIA
   RTC_DCHECK_RUN_ON(&thread_checker_);
 
   rtc::ArrayView<const char> cdata(reinterpret_cast<const char*>(data.data()),
@@ -211,6 +220,7 @@ void DatagramRtpTransport::OnDatagramReceived(
     RTC_LOG(LS_WARNING) << "Failed to demux RTP packet: "
                         << RtpDemuxer::DescribePacket(parsed_packet);
   }
+#endif
 }
 
 void DatagramRtpTransport::OnDatagramSent(DatagramId datagram_id) {
@@ -235,6 +245,7 @@ void DatagramRtpTransport::OnDatagramSent(DatagramId datagram_id) {
 bool DatagramRtpTransport::GetAndRemoveSentPacketInfo(
     DatagramId datagram_id,
     SentPacketInfo* sent_packet_info) {
+#ifndef HAVE_NO_MEDIA
   RTC_CHECK(sent_packet_info != nullptr);
 
   const auto& it = sent_rtp_packet_map_.find(datagram_id);
@@ -244,10 +255,12 @@ bool DatagramRtpTransport::GetAndRemoveSentPacketInfo(
 
   *sent_packet_info = it->second;
   sent_rtp_packet_map_.erase(it);
+#endif
   return true;
 }
 
 void DatagramRtpTransport::OnDatagramAcked(const DatagramAck& ack) {
+#ifndef HAVE_NO_MEDIA
   RTC_DCHECK_RUN_ON(&thread_checker_);
 
   SentPacketInfo sent_packet_info;
@@ -318,6 +331,7 @@ void DatagramRtpTransport::OnDatagramAcked(const DatagramAck& ack) {
   // Propagage created RTCP packet as normal incoming packet.
   buffer.SetSize(index);
   SignalRtcpPacketReceived(&buffer, /*packet_time_us=*/-1);
+#endif
 }
 
 void DatagramRtpTransport::OnDatagramLost(DatagramId datagram_id) {
@@ -362,19 +376,29 @@ bool DatagramRtpTransport::IsWritable(bool /*rtcp*/) const {
 
 void DatagramRtpTransport::UpdateRtpHeaderExtensionMap(
     const cricket::RtpHeaderExtensions& header_extensions) {
+#ifndef HAVE_NO_MEDIA
   rtp_header_extension_map_ = RtpHeaderExtensionMap(header_extensions);
+#endif
 }
 
 bool DatagramRtpTransport::RegisterRtpDemuxerSink(
     const RtpDemuxerCriteria& criteria,
     RtpPacketSinkInterface* sink) {
+#ifdef HAVE_NO_MEDIA
+  return true;
+#else
   rtp_demuxer_.RemoveSink(sink);
   return rtp_demuxer_.AddSink(criteria, sink);
+#endif
 }
 
 bool DatagramRtpTransport::UnregisterRtpDemuxerSink(
     RtpPacketSinkInterface* sink) {
+#ifdef HAVE_NO_MEDIA
+  return true;
+#else
   return rtp_demuxer_.RemoveSink(sink);
+#endif
 }
 
 void DatagramRtpTransport::OnNetworkRouteChanged(

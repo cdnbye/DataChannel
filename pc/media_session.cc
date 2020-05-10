@@ -708,6 +708,7 @@ static void NegotiatePacketization(const C& local_codec,
                                    const C& remote_codec,
                                    C* negotiated_codec) {}
 
+#ifndef HAVE_NO_MEDIA
 template <>
 void NegotiatePacketization(const VideoCodec& local_codec,
                             const VideoCodec& remote_codec,
@@ -715,12 +716,14 @@ void NegotiatePacketization(const VideoCodec& local_codec,
   negotiated_codec->packetization =
       VideoCodec::IntersectPacketization(local_codec, remote_codec);
 }
+#endif
 
 template <class C>
 static void NegotiateCodecs(const std::vector<C>& local_codecs,
                             const std::vector<C>& offered_codecs,
                             std::vector<C>* negotiated_codecs,
                             bool keep_offer_order) {
+#ifndef HAVE_NO_MEDIA
   for (const C& ours : local_codecs) {
     C theirs;
     // Note that we intentionally only find one matching codec for each of our
@@ -761,6 +764,7 @@ static void NegotiateCodecs(const std::vector<C>& local_codecs,
       return payload_type_preferences[a.id] > payload_type_preferences[b.id];
     });
   }
+#endif
 }
 
 // Finds a codec in |codecs2| that matches |codec_to_match|, which is

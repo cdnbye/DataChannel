@@ -320,7 +320,9 @@ class BaseChannel : public ChannelInterface,
   webrtc::RtpTransceiverDirection remote_content_direction_ =
       webrtc::RtpTransceiverDirection::kInactive;
 
+#ifndef HAVE_NO_MEDIA
   webrtc::RtpDemuxerCriteria demuxer_criteria_;
+#endif
   // This generator is used to generate SSRCs for local streams.
   // This is needed in cases where SSRCs are not negotiated or set explicitly
   // like in Simulcast.

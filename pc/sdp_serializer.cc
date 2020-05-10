@@ -329,9 +329,11 @@ RTCErrorOr<RidDescription> SdpSerializer::DeserializeRidDescription(
     return ParseError("Invalid RID Description format. Too many arguments.");
   }
 
+#ifndef HAVE_NO_MEDIA
   if (!IsLegalRsidName(tokens[0])) {
     return ParseError("Invalid RID value: " + tokens[0] + ".");
   }
+#endif
 
   if (tokens[1] != kSendDirection && tokens[1] != kReceiveDirection) {
     return ParseError("Invalid RID direction. Supported values: send / recv.");

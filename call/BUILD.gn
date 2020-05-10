@@ -48,8 +48,6 @@ rtc_library("call_interfaces") {
     "../api/transport:webrtc_key_value_config",
     "../api/transport/rtp:rtp_source",
     "../modules/audio_processing:audio_processing_statistics",
-    "../modules/rtp_rtcp:rtp_rtcp_format",
-    "../modules/utility",
     "../rtc_base",
     "../rtc_base:audio_format_to_string",
     "../rtc_base:checks",
@@ -84,7 +82,6 @@ rtc_library("rtp_interfaces") {
     "../api/rtc_event_log",
     "../api/transport:bitrate_settings",
     "../api/units:timestamp",
-    "../modules/rtp_rtcp:rtp_rtcp_format",
     "../rtc_base:rtc_base_approved",
     "//third_party/abseil-cpp/absl/types:optional",
   ]

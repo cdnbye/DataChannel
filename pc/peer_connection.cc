@@ -1783,6 +1783,7 @@ PeerConnection::AddTransceiver(
         "RIDs must be provided for either all or none of the send encodings.");
   }
 
+#ifndef HAVE_NO_MEDIA
   if (num_rids > 0 && absl::c_any_of(init.send_encodings,
                                      [](const RtpEncodingParameters& encoding) {
                                        return !IsLegalRsidName(encoding.rid);
@@ -1790,6 +1791,7 @@ PeerConnection::AddTransceiver(
     LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
                          "Invalid RID value provided.");
   }
+#endif
 
   if (absl::c_any_of(init.send_encodings,
                      [](const RtpEncodingParameters& encoding) {
@@ -1892,6 +1894,7 @@ PeerConnection::CreateReceiver(cricket::MediaType media_type,
                                const std::string& receiver_id) {
   rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>
       receiver;
+#ifndef HAVE_NO_MEDIA
   if (media_type == cricket::MEDIA_TYPE_AUDIO) {
     receiver = RtpReceiverProxyWithInternal<RtpReceiverInternal>::Create(
         signaling_thread(), new AudioRtpReceiver(worker_thread(), receiver_id,
@@ -1904,6 +1907,7 @@ PeerConnection::CreateReceiver(cricket::MediaType media_type,
                                                  std::vector<std::string>({})));
     NoteUsageEvent(UsageEvent::VIDEO_ADDED);
   }
+#endif
   return receiver;
 }
 
@@ -4554,6 +4558,7 @@ void PeerConnection::CreateAudioReceiver(
 void PeerConnection::CreateVideoReceiver(
     MediaStreamInterface* stream,
     const RtpSenderInfo& remote_sender_info) {
+#ifndef HAVE_NO_MEDIA
   std::vector<rtc::scoped_refptr<MediaStreamInterface>> streams;
   streams.push_back(rtc::scoped_refptr<MediaStreamInterface>(stream));
   // TODO(https://crbug.com/webrtc/9480): When we remove remote_streams(), use
@@ -4571,6 +4576,7 @@ void PeerConnection::CreateVideoReceiver(
   GetVideoTransceiver()->internal()->AddReceiver(receiver);
   Observer()->OnAddTrack(receiver, streams);
   NoteUsageEvent(UsageEvent::VIDEO_ADDED);
+#endif
 }
 
 // TODO(deadbeef): Keep RtpReceivers around even if track goes away in remote
