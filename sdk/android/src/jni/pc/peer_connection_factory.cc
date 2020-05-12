@@ -301,6 +301,7 @@ ScopedJavaLocalRef<jobject> CreatePeerConnectionFactoryForJava(
   dependencies.network_thread = network_thread.get();
   dependencies.worker_thread = worker_thread.get();
   dependencies.signaling_thread = signaling_thread.get();
+#ifndef HAVE_NO_MEDIA
   dependencies.task_queue_factory = CreateDefaultTaskQueueFactory();
   dependencies.call_factory = CreateCallFactory();
   dependencies.event_log_factory = std::make_unique<RtcEventLogFactory>(
@@ -325,6 +326,7 @@ ScopedJavaLocalRef<jobject> CreatePeerConnectionFactoryForJava(
       absl::WrapUnique(CreateVideoDecoderFactory(jni, jdecoder_factory));
   dependencies.media_engine =
       cricket::CreateMediaEngine(std::move(media_dependencies));
+#endif
 
   rtc::scoped_refptr<PeerConnectionFactoryInterface> factory =
       CreateModularPeerConnectionFactory(std::move(dependencies));
@@ -365,7 +367,11 @@ JNI_PeerConnectionFactory_CreatePeerConnectionFactory(
       TakeOwnershipOfRefPtr<AudioEncoderFactory>(native_audio_encoder_factory),
       TakeOwnershipOfRefPtr<AudioDecoderFactory>(native_audio_decoder_factory),
       jencoder_factory, jdecoder_factory,
+#ifndef HAVE_NO_MEDIA
       audio_processor ? audio_processor : CreateAudioProcessing(),
+#else
+      audio_processor,
+#endif
       TakeOwnershipOfUniquePtr<FecControllerFactoryInterface>(
           native_fec_controller_factory),
       TakeOwnershipOfUniquePtr<NetworkControllerFactoryInterface>(
@@ -499,11 +505,15 @@ static jlong JNI_PeerConnectionFactory_CreateVideoSource(
     jlong native_factory,
     jboolean is_screencast,
     jboolean align_timestamps) {
+#ifndef HAVE_NO_MEDIA
   OwnedFactoryAndThreads* factory =
       reinterpret_cast<OwnedFactoryAndThreads*>(native_factory);
   return jlongFromPointer(CreateVideoSource(jni, factory->signaling_thread(),
                                             factory->worker_thread(),
                                             is_screencast, align_timestamps));
+#else
+  return 0;
+#endif
 }
 
 static jlong JNI_PeerConnectionFactory_CreateVideoTrack(

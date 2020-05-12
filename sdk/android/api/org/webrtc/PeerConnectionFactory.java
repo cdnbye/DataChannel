@@ -438,48 +438,6 @@ public class PeerConnectionFactory {
         dependencies.getObserver(), dependencies.getSSLCertificateVerifier());
   }
 
-  public MediaStream createLocalMediaStream(String label) {
-    checkPeerConnectionFactoryExists();
-    return new MediaStream(nativeCreateLocalMediaStream(nativeFactory, label));
-  }
-
-  /**
-   * Create video source with given parameters. If alignTimestamps is false, the caller is
-   * responsible for aligning the frame timestamps to rtc::TimeNanos(). This can be used to achieve
-   * higher accuracy if there is a big delay between frame creation and frames being delivered to
-   * the returned video source. If alignTimestamps is true, timestamps will be aligned to
-   * rtc::TimeNanos() when they arrive to the returned video source.
-   */
-  public VideoSource createVideoSource(boolean isScreencast, boolean alignTimestamps) {
-    checkPeerConnectionFactoryExists();
-    return new VideoSource(nativeCreateVideoSource(nativeFactory, isScreencast, alignTimestamps));
-  }
-
-  /**
-   * Same as above with alignTimestamps set to true.
-   *
-   * @see #createVideoSource(boolean, boolean)
-   */
-  public VideoSource createVideoSource(boolean isScreencast) {
-    return createVideoSource(isScreencast, /* alignTimestamps= */ true);
-  }
-
-  public VideoTrack createVideoTrack(String id, VideoSource source) {
-    checkPeerConnectionFactoryExists();
-    return new VideoTrack(
-        nativeCreateVideoTrack(nativeFactory, id, source.getNativeVideoTrackSource()));
-  }
-
-  public AudioSource createAudioSource(MediaConstraints constraints) {
-    checkPeerConnectionFactoryExists();
-    return new AudioSource(nativeCreateAudioSource(nativeFactory, constraints));
-  }
-
-  public AudioTrack createAudioTrack(String id, AudioSource source) {
-    checkPeerConnectionFactoryExists();
-    return new AudioTrack(nativeCreateAudioTrack(nativeFactory, id, source.getNativeAudioSource()));
-  }
-
   // Starts recording an AEC dump. Ownership of the file is transfered to the
   // native code. If an AEC dump is already in progress, it will be stopped and
   // a new one will start using the provided file.
@@ -501,8 +459,6 @@ public class PeerConnectionFactory {
     networkThread = null;
     workerThread = null;
     signalingThread = null;
-    MediaCodecVideoEncoder.disposeEglContext();
-    MediaCodecVideoDecoder.disposeEglContext();
     nativeFactory = 0;
   }
 

@@ -14,22 +14,4 @@ import android.support.annotation.Nullable;
 
 /** Factory for creating VideoEncoders. */
 public interface VideoEncoderFactory {
-  /** Creates an encoder for the given video codec. */
-  @Nullable @CalledByNative VideoEncoder createEncoder(VideoCodecInfo info);
-
-  /**
-   * Enumerates the list of supported video codecs. This method will only be called once and the
-   * result will be cached.
-   */
-  @CalledByNative VideoCodecInfo[] getSupportedCodecs();
-
-  /**
-   * Enumerates the list of supported video codecs that can also be tagged with
-   * implementation information. This method will only be called once and the
-   * result will be cached.
-   */
-  @CalledByNative
-  default VideoCodecInfo[] getImplementations() {
-    return getSupportedCodecs();
-  }
 }

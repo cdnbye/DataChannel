@@ -34,9 +34,13 @@
 
 #include "api/peer_connection_interface.h"
 #include "api/rtc_event_log_output_file.h"
+#ifndef HAVE_NO_MEDIA
 #include "api/rtp_receiver_interface.h"
 #include "api/rtp_sender_interface.h"
 #include "api/rtp_transceiver_interface.h"
+#include "sdk/android/src/jni/pc/media_stream_track.h"
+#include "sdk/android/src/jni/pc/rtp_sender.h"
+#endif
 #include "rtc_base/checks.h"
 #include "rtc_base/logging.h"
 #include "rtc_base/numerics/safe_conversions.h"
@@ -48,10 +52,8 @@
 #include "sdk/android/src/jni/pc/data_channel.h"
 #include "sdk/android/src/jni/pc/ice_candidate.h"
 #include "sdk/android/src/jni/pc/media_constraints.h"
-#include "sdk/android/src/jni/pc/media_stream_track.h"
 #include "sdk/android/src/jni/pc/rtc_certificate.h"
 #include "sdk/android/src/jni/pc/rtc_stats_collector_callback_wrapper.h"
-#include "sdk/android/src/jni/pc/rtp_sender.h"
 #include "sdk/android/src/jni/pc/sdp_observer.h"
 #include "sdk/android/src/jni/pc/session_description.h"
 #include "sdk/android/src/jni/pc/stats_observer.h"
@@ -371,20 +373,24 @@ void PeerConnectionObserverJni::OnIceGatheringChange(
 
 void PeerConnectionObserverJni::OnAddStream(
     rtc::scoped_refptr<MediaStreamInterface> stream) {
+#ifndef HAVE_NO_MEDIA
   JNIEnv* env = AttachCurrentThreadIfNeeded();
   Java_Observer_onAddStream(
       env, j_observer_global_,
       GetOrCreateJavaStream(env, stream).j_media_stream());
+#endif
 }
 
 void PeerConnectionObserverJni::OnRemoveStream(
     rtc::scoped_refptr<MediaStreamInterface> stream) {
+#ifndef HAVE_NO_MEDIA
   JNIEnv* env = AttachCurrentThreadIfNeeded();
   NativeToJavaStreamsMap::iterator it = remote_streams_.find(stream);
   RTC_CHECK(it != remote_streams_.end()) << "unexpected stream: " << stream;
   Java_Observer_onRemoveStream(env, j_observer_global_,
                                it->second.j_media_stream());
   remote_streams_.erase(it);
+#endif
 }
 
 void PeerConnectionObserverJni::OnDataChannel(
@@ -402,6 +408,7 @@ void PeerConnectionObserverJni::OnRenegotiationNeeded() {
 void PeerConnectionObserverJni::OnAddTrack(
     rtc::scoped_refptr<RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<MediaStreamInterface>>& streams) {
+#ifndef HAVE_NO_MEDIA
   JNIEnv* env = AttachCurrentThreadIfNeeded();
   ScopedJavaLocalRef<jobject> j_rtp_receiver =
       NativeToJavaRtpReceiver(env, receiver);
@@ -409,18 +416,22 @@ void PeerConnectionObserverJni::OnAddTrack(
 
   Java_Observer_onAddTrack(env, j_observer_global_, j_rtp_receiver,
                            NativeToJavaMediaStreamArray(env, streams));
+#endif
 }
 
 void PeerConnectionObserverJni::OnTrack(
     rtc::scoped_refptr<RtpTransceiverInterface> transceiver) {
+#ifndef HAVE_NO_MEDIA
   JNIEnv* env = AttachCurrentThreadIfNeeded();
   ScopedJavaLocalRef<jobject> j_rtp_transceiver =
       NativeToJavaRtpTransceiver(env, transceiver);
   rtp_transceivers_.emplace_back(env, j_rtp_transceiver);
 
   Java_Observer_onTrack(env, j_observer_global_, j_rtp_transceiver);
+#endif
 }
 
+#ifndef HAVE_NO_MEDIA
 // If the NativeToJavaStreamsMap contains the stream, return it.
 // Otherwise, create a new Java MediaStream.
 JavaMediaStream& PeerConnectionObserverJni::GetOrCreateJavaStream(
@@ -436,17 +447,22 @@ JavaMediaStream& PeerConnectionObserverJni::GetOrCreateJavaStream(
   }
   return it->second;
 }
+#endif
 
 ScopedJavaLocalRef<jobjectArray>
 PeerConnectionObserverJni::NativeToJavaMediaStreamArray(
     JNIEnv* jni,
     const std::vector<rtc::scoped_refptr<MediaStreamInterface>>& streams) {
+#ifndef HAVE_NO_MEDIA
   return NativeToJavaObjectArray(
       jni, streams, GetMediaStreamClass(jni),
       [this](JNIEnv* env, rtc::scoped_refptr<MediaStreamInterface> stream)
           -> const ScopedJavaGlobalRef<jobject>& {
         return GetOrCreateJavaStream(env, stream).j_media_stream();
       });
+#else
+  return nullptr;
+#endif
 }
 
 OwnedPeerConnection::OwnedPeerConnection(
@@ -581,14 +597,18 @@ static void JNI_PeerConnection_SetAudioPlayout(
     JNIEnv* jni,
     const JavaParamRef<jobject>& j_pc,
     jboolean playout) {
+#ifndef HAVE_NO_MEDIA
   ExtractNativePC(jni, j_pc)->SetAudioPlayout(playout);
+#endif
 }
 
 static void JNI_PeerConnection_SetAudioRecording(
     JNIEnv* jni,
     const JavaParamRef<jobject>& j_pc,
     jboolean recording) {
+#ifndef HAVE_NO_MEDIA
   ExtractNativePC(jni, j_pc)->SetAudioRecording(recording);
+#endif
 }
 
 static jboolean JNI_PeerConnection_SetConfiguration(
@@ -631,6 +651,7 @@ static jboolean JNI_PeerConnection_RemoveIceCandidates(
   return ExtractNativePC(jni, j_pc)->RemoveIceCandidates(candidates);
 }
 
+#ifndef HAVE_NO_MEDIA
 static jboolean JNI_PeerConnection_AddLocalStream(
     JNIEnv* jni,
     const JavaParamRef<jobject>& j_pc,
@@ -753,15 +774,18 @@ static jboolean JNI_PeerConnection_OldGetStats(
       observer, reinterpret_cast<MediaStreamTrackInterface*>(native_track),
       PeerConnectionInterface::kStatsOutputLevelStandard);
 }
+#endif
 
 static void JNI_PeerConnection_NewGetStats(
     JNIEnv* jni,
     const JavaParamRef<jobject>& j_pc,
     const JavaParamRef<jobject>& j_callback) {
+#ifndef HAVE_NO_MEDIA
   rtc::scoped_refptr<RTCStatsCollectorCallbackWrapper> callback(
       new rtc::RefCountedObject<RTCStatsCollectorCallbackWrapper>(jni,
                                                                   j_callback));
   ExtractNativePC(jni, j_pc)->GetStats(callback);
+#endif
 }
 
 static jboolean JNI_PeerConnection_SetBitrate(
@@ -770,11 +794,15 @@ static jboolean JNI_PeerConnection_SetBitrate(
     const JavaParamRef<jobject>& j_min,
     const JavaParamRef<jobject>& j_current,
     const JavaParamRef<jobject>& j_max) {
+#ifndef HAVE_NO_MEDIA
   PeerConnectionInterface::BitrateParameters params;
   params.min_bitrate_bps = JavaToNativeOptionalInt(jni, j_min);
   params.current_bitrate_bps = JavaToNativeOptionalInt(jni, j_current);
   params.max_bitrate_bps = JavaToNativeOptionalInt(jni, j_max);
   return ExtractNativePC(jni, j_pc)->SetBitrate(params).ok();
+#else
+  return true;
+#endif
 }
 
 static jboolean JNI_PeerConnection_StartRtcEventLog(

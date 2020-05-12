@@ -92,6 +92,7 @@ class PeerConnectionObserverJni : public PeerConnectionObserver {
 
   const ScopedJavaGlobalRef<jobject> j_observer_global_;
 
+#ifndef HAVE_NO_MEDIA
   // C++ -> Java remote streams.
   NativeToJavaStreamsMap remote_streams_;
   std::vector<JavaRtpReceiverGlobalOwner> rtp_receivers_;
@@ -99,6 +100,7 @@ class PeerConnectionObserverJni : public PeerConnectionObserver {
   // callback, so that the shared ownership by the Java object will be
   // properly disposed.
   std::vector<JavaRtpTransceiverGlobalOwner> rtp_transceivers_;
+#endif
 };
 
 // PeerConnection doesn't take ownership of the observer. In Java API, we don't

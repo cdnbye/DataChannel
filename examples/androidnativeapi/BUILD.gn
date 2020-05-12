@@ -61,7 +61,6 @@ if (is_android) {
       "//rtc_base:rtc_base_approved",
       "//sdk/android:native_api_base",
       "//sdk/android:native_api_jni",
-      "//sdk/android:native_api_video",
     ]
   }
 

@@ -16,8 +16,6 @@ package org.webrtc;
 public class BuiltinAudioEncoderFactoryFactory implements AudioEncoderFactoryFactory {
   @Override
   public long createNativeAudioEncoderFactory() {
-    return nativeCreateBuiltinAudioEncoderFactory();
+    return 0;
   }
-
-  private static native long nativeCreateBuiltinAudioEncoderFactory();
 }
