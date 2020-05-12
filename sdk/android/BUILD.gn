@@ -99,7 +99,6 @@ if (is_android) {
     public_deps = [  # no-presubmit-check TODO(webrtc:8603)
       ":base_jni",
       ":peerconnection_jni",
-      "../../api:create_peerconnection_factory",
     ]
   }
 
