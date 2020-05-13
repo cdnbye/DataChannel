@@ -10,8 +10,6 @@
 
 package org.webrtc;
 
-import android.support.annotation.Nullable;
-
 /**
  * Interface for a video encoder that can be used with WebRTC. All calls will be made on the
  * encoding thread. The encoder may be constructed on a different thread and changing thread after

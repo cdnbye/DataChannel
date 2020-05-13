@@ -10,10 +10,6 @@
 
 package org.webrtc;
 
-import android.support.annotation.Nullable;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-
 /**
  * Helper class that combines HW and SW decoders.
  */

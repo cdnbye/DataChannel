@@ -15,9 +15,6 @@ import android.os.Process;
 import android.support.annotation.Nullable;
 import java.util.List;
 import org.webrtc.Logging.Severity;
-import org.webrtc.PeerConnection;
-import org.webrtc.audio.AudioDeviceModule;
-import org.webrtc.audio.JavaAudioDeviceModule;
 
 /**
  * Java wrapper for a C++ PeerConnectionFactoryInterface.  Main entry point to
@@ -164,7 +161,6 @@ public class PeerConnectionFactory {
 
   public static class Builder {
     @Nullable private Options options;
-    @Nullable private AudioDeviceModule audioDeviceModule;
     private AudioEncoderFactoryFactory audioEncoderFactoryFactory =
         new BuiltinAudioEncoderFactoryFactory();
     private AudioDecoderFactoryFactory audioDecoderFactoryFactory =
@@ -182,11 +178,6 @@ public class PeerConnectionFactory {
 
     public Builder setOptions(Options options) {
       this.options = options;
-      return this;
-    }
-
-    public Builder setAudioDeviceModule(AudioDeviceModule audioDeviceModule) {
-      this.audioDeviceModule = audioDeviceModule;
       return this;
     }
 
@@ -267,12 +258,8 @@ public class PeerConnectionFactory {
 
     public PeerConnectionFactory createPeerConnectionFactory() {
       checkInitializeHasBeenCalled();
-      if (audioDeviceModule == null) {
-        audioDeviceModule = JavaAudioDeviceModule.builder(ContextUtils.getApplicationContext())
-                                .createAudioDeviceModule();
-      }
       return nativeCreatePeerConnectionFactory(ContextUtils.getApplicationContext(), options,
-          audioDeviceModule.getNativeAudioDeviceModulePointer(),
+          0,
           audioEncoderFactoryFactory.createNativeAudioEncoderFactory(),
           audioDecoderFactoryFactory.createNativeAudioDecoderFactory(), videoEncoderFactory,
           videoDecoderFactory,

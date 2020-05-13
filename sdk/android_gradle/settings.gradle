@@ -1,1 +1,1 @@
-include ':webrtc'
+include ':DCTest', ':webrtc'
