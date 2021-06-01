@@ -196,12 +196,12 @@ bool InterfaceAddress::operator!=(const InterfaceAddress& other) const {
   return !((*this) == other);
 }
 
-const InterfaceAddress& InterfaceAddress::operator=(
-    const InterfaceAddress& other) {
-  ipv6_flags_ = other.ipv6_flags_;
-  static_cast<IPAddress&>(*this) = other;
-  return *this;
-}
+//const InterfaceAddress& InterfaceAddress::operator=(
+//    const InterfaceAddress& other) {
+//  ipv6_flags_ = other.ipv6_flags_;
+//  static_cast<IPAddress&>(*this) = other;
+//  return *this;
+//}
 
 std::string InterfaceAddress::ToString() const {
   std::string result = IPAddress::ToString();

@@ -136,7 +136,7 @@ class InterfaceAddress : public IPAddress {
   InterfaceAddress(const in6_addr& ip6, int ipv6_flags)
       : IPAddress(ip6), ipv6_flags_(ipv6_flags) {}
 
-  const InterfaceAddress& operator=(const InterfaceAddress& other);
+  //const InterfaceAddress& operator=(const InterfaceAddress& other);
 
   bool operator==(const InterfaceAddress& other) const;
   bool operator!=(const InterfaceAddress& other) const;
